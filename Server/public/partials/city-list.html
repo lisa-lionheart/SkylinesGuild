@@ -1,0 +1,1 @@
+<div class="container-fluid"><p ng-if="errorMessage" class="bg-danger">{{errorMessage}}</p><div ng-repeat="c in cities" class="city-tile"><h1>{{c.name}}</h1><ul class="stats"><li>Population: {{c.pop}}</li></ul><div class="btn-group"><button ng-click="play(c)" class="btn">Play</button><a role="button" ng-href="#/city/{{c.id}}" class="btn">Info</a></div></div></div>

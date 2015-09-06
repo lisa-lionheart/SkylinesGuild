@@ -1,0 +1,22 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.city-tile {
+
+  display: inline-block;
+
+  padding: 20px;
+
+  border-radius: 10px;
+  border: inset 2px grey;
+
+  width: 400px;
+  height: 400px;
+
+  margin: 20px;
+}
