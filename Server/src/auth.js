@@ -75,6 +75,7 @@ module.exports = function(app) {
     //   Note that the 'state' option is a Reddit-specific requirement.
     app.get('/auth/reddit', function (req, res, next) {
         req.session.state = crypto.randomBytes(32).toString('hex');
+        req.session.returnPath = req.query.return;
         passport.authenticate('reddit', {
             state: req.session.state,
         })(req, res, next);
@@ -90,7 +91,7 @@ module.exports = function(app) {
         // Check for origin via state token
         if (req.query.state == req.session.state) {
             passport.authenticate('reddit', {
-                successRedirect: '/',
+                successRedirect: req.session.returnPath || '/',
                 failureRedirect: '/auth/reddit'
             })(req, res, next);
         }
