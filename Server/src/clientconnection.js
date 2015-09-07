@@ -1,10 +1,6 @@
 var net = require('net');
 
 
-
-
-
-
 function ClientConnection(socket) {
     console.log('Client connected');
 
@@ -15,6 +11,7 @@ function ClientConnection(socket) {
     socket.on('data', this.onDataRecieved.bind(this));
     socket.on('end', this.onDisconnect.bind(this));
 
+    socket.on('error', this.onError.bind(this));
 }
 
 ClientConnection.allConnections = [];
@@ -47,8 +44,12 @@ ClientConnection.prototype.onDisconnect = function() {
 
 ClientConnection.prototype.sendMessage = function(method,args){
 
-    var data = method + ':' + args.join(',');
-    this.socket.send(data);
+    var data = method + ':' + args.join(',') + '\r\n';
+    this.socket.write(data);
+};
+
+ClientConnection.prototype.onError = function(err) {
+    console.log(err);
 };
 
 ClientConnection.prototype.onDataRecieved = function(data) {
@@ -84,9 +85,7 @@ ClientConnection.prototype.auth = function(clientKey) {
 ClientConnection.prototype.adopt = function(owningUser) {
 
     this.owningUser = owningUser.name;
-
-    this.sendMessage('auth_success', [owingUser.name]);
-
+    this.sendMessage('auth_success', [owningUser.name]);
 };
 
 ClientConnection.prototype.ping = function(cityName) {

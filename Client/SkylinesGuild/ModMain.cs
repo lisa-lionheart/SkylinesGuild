@@ -57,7 +57,7 @@ namespace SkylinesGuild
         {
 
             String secret = Singleton<ConnectionManager>.instance.clientSecret;
-            Steam.ActivateGameOverlayToWebPage("http://localhost:3000/connect/secret");
+            Steam.ActivateGameOverlayToWebPage("http://127.0.0.1:3000/connect/" + secret);
 
         }
 

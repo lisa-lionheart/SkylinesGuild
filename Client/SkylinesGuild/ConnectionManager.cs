@@ -18,6 +18,8 @@ namespace SkylinesGuild
         Socket client;
         public String clientSecret;
         bool authed;
+        bool connected;
+        String username;
 
         internal ConnectionManager()
         {
@@ -56,6 +58,7 @@ namespace SkylinesGuild
                 client.EndConnect(ar);
 
                 Debug.Log("Socket connected");
+                connected = true;
 
                 Send("auth", new object[]{clientSecret});
             }
@@ -74,12 +77,17 @@ namespace SkylinesGuild
                 data += arg + ",";
             }
 
+            data += "\r\n";
+
             byte[] byteData = Encoding.ASCII.GetBytes(data);
             client.Send(byteData);
         }
 
         void Update()
         {
+            if (!connected)
+                return;
+
             byte[] data = new byte[1024];
             int bytesRead = client.Receive(data);
 
@@ -93,8 +101,22 @@ namespace SkylinesGuild
                 String[] args = message.Substring(message.IndexOf(':')+1).Split(',');
 
                 Debug.Log(method);
-
                 Debug.Log(args);
+
+
+                switch(method){
+                    case "auth_sucess":
+                        authed = true;
+                        username = args[0];
+                        break;
+                    case "load_game":
+                        String downloadUrl = args[0];
+
+                        // Load the game
+
+                        break;
+
+                }
 
             }
 

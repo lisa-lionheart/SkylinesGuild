@@ -96,6 +96,7 @@ module.exports = function(app) {
             })(req, res, next);
         }
         else {
+            console.log('Session state: '+ req.session.state);
             next(new Error(403));
         }
     });

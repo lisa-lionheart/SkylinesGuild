@@ -17,6 +17,15 @@ app.use('/bower_components',express.static(path.join(__dirname, 'bower_component
 
 require('./src/auth.js')(app);
 
+app.use(function(req,res,next){
+  console.log(req.headers['cookie']);
+  next();
+});
+
+
+app.get('/',function(req,res) {
+
+});
 
 app.use('/connect', require('./routes/connect'));
 app.use('/cities', require('./routes/cities'));
@@ -35,12 +44,15 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
+    console.log(err.stack);
     res.json({
       message: err.message,
       error: err
     });
   });
 }
+
+
 
 // production error handler
 // no stacktraces leaked to user

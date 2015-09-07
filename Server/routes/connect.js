@@ -14,9 +14,9 @@ router.get('/:clientSecret', function(req, res, next) {
   if(!connection) {
     res.status(500).send('Invalid Key')
   } else {
-    req.session.clientConnection = connection;
+    req.session.clientSecret = req.params.clientSecret;
     connection.adopt(req.user);
-    res.redirec('/');
+    res.redirect('/');
   }
 
 });
