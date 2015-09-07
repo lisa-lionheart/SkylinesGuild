@@ -40,6 +40,7 @@ theApp.controller('CityListController',['$scope','City', function($scope, City) 
 
     $scope.play = function(c) {
         c.$play().then(function(res){
+            //Show some sort of popup
         }, function(err){
             $scope.errorMessage = 'Error launching city: ' + err.statusText;
         });

@@ -9,28 +9,21 @@ function ClientConnection(socket) {
     this.socket = socket;
 
     socket.on('data', this.onDataRecieved.bind(this));
-    socket.on('end', this.onDisconnect.bind(this));
+    socket.on('close', this.onDisconnect.bind(this));
 
     socket.on('error', this.onError.bind(this));
 }
 
-ClientConnection.allConnections = [];
+ClientConnection.authedConnections = {};
 
 
 ClientConnection.findConnectionByKey = function(key) {
-
-    for(var i = 0; i < ClientConnection.allConnections.length; i++) {
-        if(ClientConnection.allConnections[i].clientKey = key) {
-            return ClientConnection.allConnections[i];
-        }
-    }
-
-    return null;
+    return ClientConnection.authedConnections[key];
 };
 
 ClientConnection.listen = function() {
     var server = net.createServer(function(c) {
-        ClientConnection.allConnections.push(new ClientConnection(c));
+        new ClientConnection(c);
     });
 
     server.listen(8124, function() {
@@ -44,7 +37,7 @@ ClientConnection.prototype.onDisconnect = function() {
 
 ClientConnection.prototype.sendMessage = function(method,args){
 
-    var data = method + ':' + args.join(',') + '\r\n';
+    var data = method + ':' + args.join(',') + ',' + Date.now() + '\r\n';
     this.socket.write(data);
 };
 
@@ -52,18 +45,21 @@ ClientConnection.prototype.onError = function(err) {
     console.log(err);
 };
 
+
 ClientConnection.prototype.onDataRecieved = function(data) {
 
     var validMethods = ['auth', 'ping'];
 
     try {
 
+        console.log('RECV:' + data.toString());
+
         data = data.toString().split(':');
         var method = data[0];
         var args = data[1].split(',');
 
         if(validMethods.indexOf(method) != -1) {
-            this[method].call(this,args);
+            this[method].apply(this,args);
         } else {
             console.log('Unknown method: ' + method)
         }
@@ -78,7 +74,7 @@ ClientConnection.prototype.onDataRecieved = function(data) {
 ClientConnection.prototype.auth = function(clientKey) {
 
     this.clientKey = clientKey;
-
+    ClientConnection.authedConnections[clientKey] = this;
     console.log('Client authenticating as ' + clientKey)
 };
 

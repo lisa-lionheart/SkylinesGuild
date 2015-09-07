@@ -2,15 +2,16 @@
 
 var express = require('express');
 var router = express.Router();
+var ClientConnection = require('../src/clientconnection');
 
 var cities = [
     {
-        id: 0,
+        cityId: 0,
         name: 'Steamboat springs',
         pop: 1000
     },
     {
-        id:1,
+        cityId:1,
         name: 'Cardiff',
         pop: 10
     }
@@ -35,6 +36,19 @@ router.get('/all', function(req, res, next) {
 
 router.get('/:id', function(req, res, next) {
     res.json(cities[req.params.id]);
+});
+
+router.get('/:id/play', function(req,res){
+
+    var connection = ClientConnection.findConnectionByKey(req.session.clientSecret);
+    if(!connection) {
+        return res.status(400).send('Client not connected');
+    }
+
+    var url = "http://127.0.0.1:3000/data/NewSave.crp";
+    connection.sendMessage("load_game", [req.params.id, url]);
+
+    res.status(200);
 });
 
 module.exports = router;

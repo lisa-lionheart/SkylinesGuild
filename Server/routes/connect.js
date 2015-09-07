@@ -12,6 +12,7 @@ router.get('/:clientSecret', function(req, res, next) {
 
   var connection = ClientConnection.findConnectionByKey(req.params.clientSecret);
   if(!connection) {
+    console.log('Invalid key');
     res.status(500).send('Invalid Key')
   } else {
     req.session.clientSecret = req.params.clientSecret;
