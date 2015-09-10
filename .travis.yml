@@ -1,2 +1,4 @@
 language: java
-script: sh -c 'cd Server && gradle build'
+jdk:
+  - oraclejdk8
+script: gradle -b .\Server\build.gradle --console plain clean build
