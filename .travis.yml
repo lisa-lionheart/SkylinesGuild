@@ -1,4 +1,4 @@
 language: java
 jdk:
   - oraclejdk8
-script: gradle -b .\Server\build.gradle --console plain clean build
+script: gradle -b .\Server\build.gradle clean build
