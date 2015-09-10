@@ -1,0 +1,2 @@
+language: java
+script: sh -c 'cd Server && gradle build'
