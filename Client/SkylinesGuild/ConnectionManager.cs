@@ -14,17 +14,20 @@ namespace SkylinesGuild
     {
         //Config
         public static String hostname = "localhost";
-        public static int port = 8124;
+        public static int port = 8132;
+        public static int webPort = 8080;
 
         Socket client;
         public String clientSecret;
         bool authed;
         bool connected;
+        bool running = true;
         String username;
 
         Thread socketThread;
         
         Dictionary<String, Action<String[]>> handlers;
+        Queue<byte[]> sendQueue = new Queue<byte[]>();
 
         public ClientConnection()
         {
@@ -41,10 +44,15 @@ namespace SkylinesGuild
             handlers.Add(name, handler);
         }
 
+        public void Disconnect() {
+            running = false;
+            
+        }
+
         private void StartClient()
         {
 
-            while (true)
+            while (running)
             {
                 // Connect to a remote device.
                 try
@@ -57,31 +65,49 @@ namespace SkylinesGuild
                         SocketType.Stream, ProtocolType.Tcp);
                     
                     client.Connect(remoteEP);
+                    client.ReceiveTimeout = 100;
 
                     Debug.Log("Socket connected");
                     connected = true;
 
                     Send("auth", new String[] { clientSecret });
 
-                    while (true)
+                    while (running)
                     {
-                        byte[] data = new byte[1024];
-                        int bytesRead = client.Receive(data, 1024, 0);
 
-                        Debug.Log("Got " + bytesRead + " bytes");
-                        if (bytesRead > 0)
+                        try
                         {
-                            String message = ASCIIEncoding.UTF8.GetString(data, 0, bytesRead);
+                            byte[] data = new byte[1024];
+                            int bytesRead = client.Receive(data, 1024, 0);
 
-                            Debug.Log(message);
 
-                            String method = message.Substring(0, message.IndexOf(':'));
-                            String[] args = message.Substring(message.IndexOf(':')+1).Split(',');
+                            Debug.Log("Got " + bytesRead + " bytes");
+                            if (bytesRead > 0)
+                            {
+                                String message = ASCIIEncoding.UTF8.GetString(data, 0, bytesRead);
 
-                            Debug.Log(method);
-                            Debug.Log(args);
+                                Debug.Log(message);
 
-                            ThreadHelper.dispatcher.Dispatch(()=>{ RecivedData(method,args); });
+                                String method = message.Substring(0, message.IndexOf(':'));
+                                String[] args = message.Substring(message.IndexOf(':') + 1).Split(',');
+
+                                Debug.Log(method);
+                                Debug.Log(args);
+
+                                ThreadHelper.dispatcher.Dispatch(() => { RecivedData(method, args); });
+                            }
+                        }
+                        catch (SocketException e)
+                        {
+                            
+                        }
+
+                        lock (sendQueue) 
+                        {
+                            while (sendQueue.Count > 0)
+                            {
+                                client.Send(sendQueue.Dequeue());
+                            }
                         }
 
                     }
@@ -109,7 +135,11 @@ namespace SkylinesGuild
             data += "\r\n";
 
             byte[] byteData = Encoding.ASCII.GetBytes(data);
-            client.Send(byteData);
+            lock (sendQueue)
+            {
+                sendQueue.Enqueue(byteData);
+            }
+            
         }
 
         void RecivedData(String method, String[] args) {

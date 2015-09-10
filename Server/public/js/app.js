@@ -17,26 +17,44 @@ theApp.config(['$routeProvider',
             });
     }]);
 
-theApp.controller('UserController',['$scope','$rootScope','$http', function($scope,$rootScope,$http){
-    $http.get('/user').then(function(res){
-        $scope.loggedIn = (res.data !== "");
-        $scope.user = res.data;
-    });
+theApp.controller('UserController',['$scope','$rootScope', 'User', function($scope,$rootScope,User){
+    $rootScope.currentUser = User.current();
 
     $scope.login = function() {
-        window.location.href='/auth/reddit';
+        window.location.href='/login';
     };
 
     $scope.logout = function() {
-        window.location.href='/auth/logout';
+        window.location.href='/logout';
     };
+
+    $rootScope.formatTimestamp = function(ts) {
+        return new Date(ts).toString();
+    }
+
+    $rootScope.getUserName = function(id) {
+        return User.get(id).nickName;
+    }
 }]);
 
-theApp.controller('CityListController',['$scope','City', function($scope, City) {
+theApp.controller('CityListController',['$scope','$location','City','User', function($scope, $location, City) {
 
     document.title = 'Available Cities';
 
-    $scope.cities = City.query();
+    City.query().then(function(data){
+        $scope.cities = data;
+        data.forEach(function(city){
+            city.owner = User.get(city.ownerId);
+        })
+    });
+
+    $scope.download = function(city) {
+        window.location.href = city.lastSave.downloadUrl
+    }
+
+    $scope.view = function(city) {
+        $location.path('/city/'+city.cityId)
+    }
 
     $scope.play = function(c) {
         c.$play().then(function(res){
