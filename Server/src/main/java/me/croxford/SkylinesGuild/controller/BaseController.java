@@ -2,6 +2,7 @@ package me.croxford.SkylinesGuild.controller;
 
 import me.croxford.SkylinesGuild.model.User;
 import me.croxford.SkylinesGuild.model.UserRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,13 +17,15 @@ public class BaseController {
 
 
     public User getCurrentUser() {
+//
+//        Object details = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        if(details instanceof User) {
+//            return (User)details;
+//        }
 
-        Object details = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return null;
 
-        if(details instanceof User) {
-            return (User)details;
-        }
-
-        return null;
+        return users.findById(new ObjectId("55f18f443b62d9124eaa3fdf"));
     }
 }

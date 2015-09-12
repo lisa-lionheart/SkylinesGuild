@@ -2,17 +2,29 @@ package me.croxford.SkylinesGuild.model;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.naming.factory.BeanFactory;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import java.beans.Transient;
+import java.beans.beancontext.BeanContext;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class City {
 
 
+
     @Id
-    private String cityId;
+    private ObjectId id;
     private String cityName;
-    private String ownerId;
+
+    @DBRef
+    private User owner;
 
     private ArrayList<SaveGame> saveGames;
 
@@ -22,15 +34,14 @@ public class City {
     /**
      * Initialize new city with no parameters
      * @param cityName
-     * @param ownerId
+     * @param owner
      */
-    public City(String cityName, String ownerId) {
+    public City(String cityName, User owner) {
 
         this.cityName = cityName;
-        this.ownerId = ownerId;
+        this.owner = owner;
         this.saveGames = new ArrayList<SaveGame>();
     }
-
 
     public void addSaveGame(SaveGame save) {
         saveGames.add(save);
@@ -42,12 +53,12 @@ public class City {
 
     //Generic getters and setters;
 
-    public String getOwnerId() {
-        return ownerId;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public String getCityName() {
@@ -58,12 +69,19 @@ public class City {
         this.cityName = cityName;
     }
 
+    @Transient
     public String getCityId() {
-        return cityId;
+        return id.toString();
     }
 
-    public void setCityId(String cityId) {
-        this.cityId = cityId;
+    @JsonIgnore
+    public ObjectId getId() {
+        return id;
+    }
+
+    @JsonIgnore
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
     public ArrayList<SaveGame> getSaveGames() {
@@ -74,4 +92,10 @@ public class City {
         this.saveGames = saveGames;
     }
 
+    public boolean canUpdate(User savingUser) {
+
+        //TODO: Implement me
+        Logger.getGlobal().severe("No authentication, anyone can modify this city!!!");
+        return true;
+    }
 }

@@ -28,32 +28,19 @@ public class ClientConnectionManager {
 
     private Set<ClientConnection> allConnections = new HashSet<>();
 
+    AsynchronousServerSocketChannel server;
+
     ClientConnectionManager() {
 
         try {
-            AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open();
+            server = AsynchronousServerSocketChannel.open();
             String host = "localhost";
 
             InetSocketAddress address = new InetSocketAddress(host, port);
             server.bind(address);
             log.info("Server is listening at" + address.toString());
 
-            server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Object>() {
-                @Override
-                public void completed(AsynchronousSocketChannel channel, Object attachment) {
-                    try {
-                        log.info("New connection from " + channel.getRemoteAddress());
-                        allConnections.add(new ClientConnection(channel, instance));
-                    } catch (IOException e) {
-                        log.severe(e.toString());
-                    }
-                }
-
-                @Override
-                public void failed(Throwable exc, Object attachment) {
-
-                }
-            });
+            acceptNextConnection();
 
         } catch (Exception e) {
             log.info(e.toString());
@@ -62,13 +49,34 @@ public class ClientConnectionManager {
         instance = this;
     }
 
+    void acceptNextConnection() {
+        server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Object>() {
+            @Override
+            public void completed(AsynchronousSocketChannel channel, Object attachment) {
+                try {
+                    log.info("New connection from " + channel.getRemoteAddress());
+                    allConnections.add(new ClientConnection(channel, instance));
+                } catch (IOException e) {
+                    log.severe(e.toString());
+                }
+                acceptNextConnection();
+            }
+
+            @Override
+            public void failed(Throwable exc, Object attachment) {
+                log.severe(exc.toString());
+            }
+        });
+    }
+
+
     public static ClientConnectionManager getInstance() {
         return instance;
     }
 
     public ClientConnection getConnection(String clientSecret) {
         for(ClientConnection c : allConnections) {
-            if(c.getClientSecret() == clientSecret) {
+            if(c.getClientSecret().equals(clientSecret)) {
                 return c;
             }
         }

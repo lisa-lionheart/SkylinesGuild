@@ -28,18 +28,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements A
         http.csrf().disable();
 
 
-
-        http
-            .authorizeRequests()
-                .antMatchers("/stylesheets/","/lib/**", "/js/**", "/partials/**") .permitAll()
-                .antMatchers("/**").authenticated();
-
-
-            http
-                    .openidLogin()
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/", true)
-                    .permitAll();
+//
+//        http
+//            .authorizeRequests()
+//                .antMatchers("/stylesheets/","/**", "/js/**", "/partials/**") .permitAll()
+//                .antMatchers("/**").authenticated();
+//
+//
+//            http
+//                    .openidLogin()
+//                    .loginPage("/login")
+//                    .defaultSuccessUrl("/", true)
+//                    .permitAll();
 
         http.rememberMe();
     }

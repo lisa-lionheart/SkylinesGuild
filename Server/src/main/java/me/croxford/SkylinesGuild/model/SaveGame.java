@@ -3,6 +3,8 @@ package me.croxford.SkylinesGuild.model;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -15,18 +17,29 @@ import java.util.Date;
  */
 public class SaveGame {
 
+    @Autowired
+    static UserRepository users;
 
     static String bucketName = "guild-objects";
     static String downloadPrefix = "http://guild-objects.s3.amazonaws.com/";
 
     private Date timestamp;
 
+
+    private Date inGameDate;
+
     private String saveFileId;
     private String thumbnailId;
 
 
+    @DBRef
+    private User user;
+
+
     private int population;
-    private int balance;
+
+    private long cash;
+    private long cashDelta;
 
     public SaveGame() {
     }
@@ -41,6 +54,8 @@ public class SaveGame {
     private String storeObject(byte[] data, String extension) {
         AmazonS3Client s3 = new AmazonS3Client();
 
+
+
         String md5 = null;
         try {
             byte[] digest = MessageDigest.getInstance("md5").digest(data);
@@ -53,6 +68,7 @@ public class SaveGame {
         if(extension.equals("png")) {
             meta.setContentType("image/png");
         }
+        meta.setContentLength(data.length);
         meta.setCacheControl("public,maxage=600");
         ByteArrayInputStream is = new ByteArrayInputStream(data);
 
@@ -107,11 +123,39 @@ public class SaveGame {
         this.population = population;
     }
 
-    public int getBalance() {
-        return balance;
+    public long getCash() {
+        return cash;
     }
 
-    public void setBalance(int balance) {
-        this.balance = balance;
+    public void setCash(long cash) {
+        this.cash = cash;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Date getInGameDate() {
+        return inGameDate;
+    }
+
+    public void setInGameDate(Date inGameDate) {
+        this.inGameDate = inGameDate;
+    }
+
+
+    public long getCashDelta() {
+        return cashDelta;
+    }
+
+    public void setCashDelta(long cashDelta) {
+        this.cashDelta = cashDelta;
+    }
+
+
+
 }

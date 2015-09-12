@@ -1,20 +1,27 @@
 package me.croxford.SkylinesGuild.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
 import com.github.koraktor.steamcondenser.steam.community.SteamId;
 import me.croxford.SkylinesGuild.ClientConnection;
 import me.croxford.SkylinesGuild.ClientConnectionManager;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.beans.Transient;
 import java.util.Collection;
 
 public class User implements UserDetails {
     @Id
-    private String userId;
+    private ObjectId id;
+
+    @Indexed(unique = true)
     private String openId;
     private String clientSecret;
 
@@ -23,7 +30,7 @@ public class User implements UserDetails {
         this.setOpenId(openId);
     }
 
-
+    @Transient
     public long getSteamId() {
         String idPart = getOpenId().substring(getOpenId().lastIndexOf('/') + 1);
         return Long.parseUnsignedLong(idPart);
@@ -31,6 +38,7 @@ public class User implements UserDetails {
 
 
     @JsonIgnore
+    @Transient
     private SteamId getSteamProfile() {
         try {
             return SteamId.create(getSteamId(), true);
@@ -39,40 +47,46 @@ public class User implements UserDetails {
         }
     }
 
+    @Transient
     public String getNickName() { return getSteamProfile().getNickname(); }
 
+    @Transient
     public String getAvatarUrl() {
         return getSteamProfile().getAvatarIconUrl();
     }
 
+    @Transient
     public String getOnlineState() {
         return getSteamProfile().getStateMessage();
     }
 
+    @Transient
     public boolean isConnected() {
         return  getClientConnection() != null;
-
     }
 
 
     @JsonIgnore
+    @Transient
     public ClientConnection getClientConnection() {
         return ClientConnectionManager.getInstance().getConnection(getClientSecret());
     }
 
     //User detail methods
-
+    @Transient
     public boolean isLoggedIn() {
         return true;
     }
 
     @Override
+    @Transient
     public String getUsername() {
         return getOpenId();
     }
 
     @Override
     @JsonIgnore
+    @Transient
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
     }
@@ -80,6 +94,7 @@ public class User implements UserDetails {
 
     @Override
     @JsonIgnore
+    @Transient
     public String getPassword() {
         return null;
     }
@@ -87,40 +102,49 @@ public class User implements UserDetails {
 
     @Override
     @JsonIgnore
+    @Transient
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
     @JsonIgnore
+    @Transient
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
     @JsonIgnore
+    @Transient
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
     @JsonIgnore
+    @Transient
     public boolean isEnabled() {
         return true;
     }
 
-    public String getUserId() {
-        return userId;
+
+    @JsonIgnore
+    public ObjectId getId() {
+        return id;
+    }
+    @JsonIgnore
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    @JsonProperty("id")
+    @Transient
+    public String getIdAsString() { return this.id.toString(); }
 
     public String getOpenId() {
         return openId;
     }
-
     public void setOpenId(String openId) {
         this.openId = openId;
     }
@@ -129,7 +153,6 @@ public class User implements UserDetails {
     public String getClientSecret() {
         return clientSecret;
     }
-
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
     }

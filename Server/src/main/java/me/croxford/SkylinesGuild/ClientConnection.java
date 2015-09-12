@@ -7,6 +7,9 @@ import me.croxford.SkylinesGuild.model.SaveGame;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.sql.Date;
+import java.time.LocalTime;
+import java.time.temporal.TemporalField;
 import java.util.logging.Logger;
 
 public class ClientConnection {
@@ -27,13 +30,26 @@ public class ClientConnection {
         clientSecret = null; //No registered
         channel = _channel;
         manager = owner;
+
         doRead();
+    }
+
+    boolean isConnected() {
+        return channel.isOpen();
     }
 
     private void doRead() {
         channel.read(buffer, null, new CompletionHandler<Integer, Object>() {
             @Override
             public void completed(Integer result, Object attachment) {
+
+                if(result == -1) {
+
+                    log.info("Connection recieved end of line");
+                    manager.onConnectionClosed(ClientConnection.this);
+                    return;
+                }
+
                 for(int i=0; i < result; i++) {
                     char c = (char)buffer.get(i);
                     if(c == '\r') {
@@ -50,6 +66,7 @@ public class ClientConnection {
 
             @Override
             public void failed(Throwable exc, Object attachment) {
+                log.info("remote hung up");
                 manager.onConnectionClosed(ClientConnection.this);
             }
         });
@@ -68,6 +85,7 @@ public class ClientConnection {
                 sendBuffer.append(',');
             }
 
+            sendBuffer.append(LocalTime.now().toSecondOfDay());
             channel.write(ByteBuffer.wrap(sendBuffer.toString().getBytes("utf8")));
 
         }catch(Exception e) {

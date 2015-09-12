@@ -1,5 +1,6 @@
 package me.croxford.SkylinesGuild.model;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
@@ -8,5 +9,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface UserRepository extends MongoRepository<User, String> {
 
     User findByOpenId(String cityId);
-    User findByUserId(String userId);
+    User findById(ObjectId userId);
 }

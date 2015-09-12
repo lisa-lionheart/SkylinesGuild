@@ -1,6 +1,8 @@
-﻿using ColossalFramework.Threading;
+﻿using ColossalFramework.IO;
+using ColossalFramework.Threading;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,13 +14,8 @@ namespace SkylinesGuild
 {
     class ClientConnection 
     {
-        //Config
-        public static String hostname = "localhost";
-        public static int port = 8132;
-        public static int webPort = 8080;
 
         Socket client;
-        public String clientSecret;
         bool authed;
         bool connected;
         bool running = true;
@@ -33,7 +30,8 @@ namespace SkylinesGuild
         {
             handlers = new Dictionary<String, Action<String[]>>();
 
-            clientSecret = Guid.NewGuid().ToString();
+           
+                        
             authed = false;
 
             socketThread = new Thread(this.StartClient);
@@ -57,9 +55,9 @@ namespace SkylinesGuild
                 // Connect to a remote device.
                 try
                 {
-                    IPHostEntry ipHostInfo = Dns.Resolve(hostname);
+                    IPHostEntry ipHostInfo = Dns.Resolve(Config.hostname);
                     IPAddress ipAddress = ipHostInfo.AddressList[0];
-                    IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
+                    IPEndPoint remoteEP = new IPEndPoint(ipAddress, Config.port);
 
                     client = new Socket(AddressFamily.InterNetwork,
                         SocketType.Stream, ProtocolType.Tcp);
@@ -67,10 +65,10 @@ namespace SkylinesGuild
                     client.Connect(remoteEP);
                     client.ReceiveTimeout = 100;
 
-                    Debug.Log("Socket connected");
+                    Log.Debug("Socket connected");
                     connected = true;
 
-                    Send("auth", new String[] { clientSecret });
+                    Send("auth", new String[] { Config.clientSecret() });
 
                     while (running)
                     {
@@ -81,18 +79,18 @@ namespace SkylinesGuild
                             int bytesRead = client.Receive(data, 1024, 0);
 
 
-                            Debug.Log("Got " + bytesRead + " bytes");
+                            Log.Debug("Got " + bytesRead + " bytes");
                             if (bytesRead > 0)
                             {
                                 String message = ASCIIEncoding.UTF8.GetString(data, 0, bytesRead);
 
-                                Debug.Log(message);
+                                Log.Debug(message);
 
                                 String method = message.Substring(0, message.IndexOf(':'));
                                 String[] args = message.Substring(message.IndexOf(':') + 1).Split(',');
 
-                                Debug.Log(method);
-                                Debug.Log(args);
+                                Log.Debug(method);
+                                Log.Debug(args);
 
                                 ThreadHelper.dispatcher.Dispatch(() => { RecivedData(method, args); });
                             }
@@ -115,7 +113,7 @@ namespace SkylinesGuild
                 }
                 catch (Exception e)
                 {
-                    Debug.Log(e.ToString());
+                    Log.Debug(e.ToString());
                 }
 
             }
@@ -144,7 +142,7 @@ namespace SkylinesGuild
 
         void RecivedData(String method, String[] args) {
 
-            Debug.Log("Dispatch message: " + method + "args: " + args.Length);
+            Log.Debug("Dispatch message: " + method + "args: " + args.Length);
             switch(method){
                 case "auth_success":
                     authed = true;
