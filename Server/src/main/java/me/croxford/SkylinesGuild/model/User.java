@@ -17,12 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.beans.Transient;
 import java.util.Collection;
 
-public class User implements UserDetails {
-    @Id
-    private ObjectId id;
+public class User extends OpenIDUser {
 
-    @Indexed(unique = true)
-    private String openId;
     private String clientSecret;
 
     public User(String openId) throws UsernameNotFoundException {
@@ -72,67 +68,12 @@ public class User implements UserDetails {
         return ClientConnectionManager.getInstance().getConnection(getClientSecret());
     }
 
-    //User detail methods
-    @Transient
-    public boolean isLoggedIn() {
-        return true;
-    }
-
-    @Override
-    @Transient
-    public String getUsername() {
-        return getOpenId();
-    }
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public String getPassword() {
-        return null;
-    }
-
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    @JsonIgnore
-    @Transient
-    public boolean isEnabled() {
-        return true;
-    }
-
 
     @JsonIgnore
     public ObjectId getId() {
         return id;
     }
+
     @JsonIgnore
     public void setId(ObjectId id) {
         this.id = id;
@@ -142,12 +83,6 @@ public class User implements UserDetails {
     @Transient
     public String getIdAsString() { return this.id.toString(); }
 
-    public String getOpenId() {
-        return openId;
-    }
-    public void setOpenId(String openId) {
-        this.openId = openId;
-    }
 
     @JsonIgnore
     public String getClientSecret() {

@@ -17,8 +17,13 @@ public class UserController extends BaseController {
     CityRepository cities;
 
     @RequestMapping("/user")
-    public User currentUser() {
-        return getCurrentUser();
+    public Object currentUser() {
+        User user = getCurrentUser();
+        if(user == null) {
+            return "{\"isLoggedIn\":false}";
+        }else {
+            return user;
+        }
     }
 
     @RequestMapping("/user/{userId}")

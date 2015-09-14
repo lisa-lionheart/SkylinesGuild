@@ -35,7 +35,7 @@ namespace SkylinesGuild
             saveNowButton.stringUserData = "guild";
 
             saveNowButton.position = saveGameButton.position;
-            saveNowButton.size = saveGameButton.position;
+            saveNowButton.size = saveGameButton.size;
 
 
             saveGameButton.enabled = false;

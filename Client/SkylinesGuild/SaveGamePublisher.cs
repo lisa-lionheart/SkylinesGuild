@@ -4,6 +4,8 @@ using ColossalFramework.Packaging;
 using ColossalFramework.UI;
 using MiscUtil.Conversion;
 using MiscUtil.IO;
+using SharpCompress.Compressor;
+using SharpCompress.Compressor.BZip2;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +31,6 @@ namespace SkylinesGuild
         String tempSavePath;
         String cityId;
 
-        AsyncTask task;
 
         public SaveGamePublisher(String cityId) 
         {
@@ -48,7 +49,9 @@ namespace SkylinesGuild
             Log.Debug("Request save: " + name);
 
             currentSaveData = new MemoryStream();
-            saveWriter = new EndianBinaryWriter(new BigEndianBitConverter(),currentSaveData, Encoding.UTF8);
+            BZip2Stream bzip = new BZip2Stream(currentSaveData, CompressionMode.Compress);
+            
+            saveWriter = new EndianBinaryWriter(new BigEndianBitConverter(),bzip, Encoding.UTF8);
 
             saveWriter.Write((byte)formatVersion);
 
@@ -76,9 +79,7 @@ namespace SkylinesGuild
         }
 
         void WaitForSave() {
-
-
-
+            
             Log.Debug("Waiting for save to finish");
             Timer t = new Timer(100.0f);
             t.Elapsed += (object sender, ElapsedEventArgs e) =>
@@ -135,6 +136,7 @@ namespace SkylinesGuild
             saveWriter.Write(saveData.Length);
             saveWriter.Write(saveData);
 
+            saveWriter.Close();
 
             Log.Debug("Upload length: "+ saveData.Length);
 #if DEBUG

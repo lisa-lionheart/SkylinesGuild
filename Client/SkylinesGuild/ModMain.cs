@@ -23,6 +23,8 @@ namespace SkylinesGuild
         static GuildManager go = null;
 
 
+
+
         public string Name
         {
             get {
@@ -81,11 +83,7 @@ namespace SkylinesGuild
         public void OnLevelLoaded(LoadMode mode)
         {
             Log.Trace();
-            if (mode == LoadMode.LoadGame)
-            {
-                go.OnLevelLoaded();
-                
-            }
+           
         }
 
         public void OnLevelUnloading()

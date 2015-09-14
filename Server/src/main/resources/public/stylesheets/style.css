@@ -29,3 +29,11 @@ a {
   max-width: 380px;
   margin: 15px 0px 15px 0px;
 }
+
+.steamLogin {
+    background-image: url(http://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_small.png);
+    width: 156px;
+    height: 23px;
+    margin-top: 14px;
+
+}

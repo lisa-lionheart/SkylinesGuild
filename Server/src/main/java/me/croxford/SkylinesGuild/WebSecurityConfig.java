@@ -27,19 +27,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements A
 
         http.csrf().disable();
 
+        http
+            .authorizeRequests()
+                .antMatchers("/**").permitAll();
 
-//
-//        http
-//            .authorizeRequests()
-//                .antMatchers("/stylesheets/","/**", "/js/**", "/partials/**") .permitAll()
-//                .antMatchers("/**").authenticated();
-//
-//
-//            http
-//                    .openidLogin()
-//                    .loginPage("/login")
-//                    .defaultSuccessUrl("/", true)
-//                    .permitAll();
+            http
+                    .openidLogin()
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/", true)
+                    .permitAll();
+
+            http.logout().logoutSuccessUrl("/");
 
         http.rememberMe();
     }
@@ -68,4 +66,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements A
         users.save(user);
         return user;
     }
+
 }

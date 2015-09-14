@@ -48,7 +48,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
@@ -61,14 +60,23 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="InGameUI.cs" />
     <Compile Include="lib\BigEndianBitConverter.cs" />
+    <Compile Include="lib\SharpCompress\BZip2Constants.cs" />
+    <Compile Include="lib\SharpCompress\BZip2Stream.cs" />
+    <Compile Include="lib\SharpCompress\CBZip2InputStream.cs" />
+    <Compile Include="lib\SharpCompress\CBZip2OutputStream.cs" />
+    <Compile Include="lib\SharpCompress\CompressionMode.cs" />
+    <Compile Include="lib\SharpCompress\CRC.cs" />
     <Compile Include="lib\EndianBinaryWriter.cs" />
     <Compile Include="GuildManager.cs" />
     <Compile Include="lib\EndianBitConverter.cs" />
     <Compile Include="lib\Endianness.cs" />
     <Compile Include="lib\LittleEndianBitConverter.cs" />
     <Compile Include="ModMain.cs" />
+    <Compile Include="ProgresView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SavegameLoader.cs" />
     <Compile Include="SaveGamePublisher.cs" />
+    <Compile Include="StreamUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mklink.psm1" />

@@ -2,18 +2,17 @@ package me.croxford.SkylinesGuild.model;
 
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.naming.factory.BeanFactory;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.beans.Transient;
-import java.beans.beancontext.BeanContext;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
 
 public class City {
 
@@ -23,8 +22,21 @@ public class City {
     private ObjectId id;
     private String cityName;
 
-    @DBRef
+    @DBRef(lazy = true)
     private User owner;
+
+    private ArrayList<ModInfo> usedMods;
+
+    public User getCurrentMayor() {
+        return currentMayor;
+    }
+
+    public void setCurrentMayor(User currentMayor) {
+        this.currentMayor = currentMayor;
+    }
+
+    @DBRef
+    private User currentMayor;
 
     private ArrayList<SaveGame> saveGames;
 
@@ -41,6 +53,7 @@ public class City {
         this.cityName = cityName;
         this.owner = owner;
         this.saveGames = new ArrayList<SaveGame>();
+        this.usedMods = new ArrayList<ModInfo>();
     }
 
     public void addSaveGame(SaveGame save) {
@@ -74,7 +87,7 @@ public class City {
         return id.toString();
     }
 
-    @JsonIgnore
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     public ObjectId getId() {
         return id;
     }
@@ -88,6 +101,7 @@ public class City {
         return saveGames;
     }
 
+    @JsonIgnore
     public void setSaveGames(ArrayList<SaveGame> saveGames) {
         this.saveGames = saveGames;
     }
@@ -97,5 +111,13 @@ public class City {
         //TODO: Implement me
         Logger.getGlobal().severe("No authentication, anyone can modify this city!!!");
         return true;
+    }
+
+    public ArrayList<ModInfo> getUsedMods() {
+        return usedMods;
+    }
+
+    public void setUsedMods(ArrayList<ModInfo> usedMods) {
+        this.usedMods = usedMods;
     }
 }

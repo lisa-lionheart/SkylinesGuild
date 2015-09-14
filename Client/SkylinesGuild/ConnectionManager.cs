@@ -29,9 +29,7 @@ namespace SkylinesGuild
         public ClientConnection()
         {
             handlers = new Dictionary<String, Action<String[]>>();
-
-           
-                        
+            
             authed = false;
 
             socketThread = new Thread(this.StartClient);
@@ -55,7 +53,7 @@ namespace SkylinesGuild
                 // Connect to a remote device.
                 try
                 {
-                    IPHostEntry ipHostInfo = Dns.Resolve(Config.hostname);
+                    IPHostEntry ipHostInfo = Dns.GetHostEntry(Config.hostname);  //Dns.Resolve(Config.hostname);
                     IPAddress ipAddress = ipHostInfo.AddressList[0];
                     IPEndPoint remoteEP = new IPEndPoint(ipAddress, Config.port);
 
@@ -97,7 +95,7 @@ namespace SkylinesGuild
                         }
                         catch (SocketException e)
                         {
-                            
+                            Log.Debug(e);
                         }
 
                         lock (sendQueue) 

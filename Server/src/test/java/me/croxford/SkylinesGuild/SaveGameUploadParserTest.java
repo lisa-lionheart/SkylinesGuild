@@ -1,7 +1,9 @@
 package me.croxford.SkylinesGuild;
 
 import junit.framework.TestCase;
-import junit.framework.TestResult;
+import me.croxford.SkylinesGuild.model.SaveGame;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
 
 import java.io.*;
 
@@ -14,21 +16,29 @@ public class SaveGameUploadParserTest extends TestCase {
 
     public void testCanParseSavegame() throws IOException {
 
-        InputStream is = null;
-        try {
-            is = new FileInputStream("testdata/upload.bin");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        final InputStream is = new FileInputStream("testdata/upload.bin");
 
-        SaveGameUploadParser parser = new SaveGameUploadParser(is);
+        SaveGameMessageConvertor parser = new SaveGameMessageConvertor();
 
-        FileOutputStream out = new FileOutputStream("test.png");
-        out.write(parser.getThumbnail());
+        SaveGame save = parser.read(SaveGame.class, new HttpInputMessage() {
+            @Override
+            public InputStream getBody() throws IOException {
+                return is;
+            }
 
-        assertEquals(parser.getCityName(), "Springdale");
-        assertEquals(parser.getPopulation(), 628);
-        assertEquals(parser.getCash(), 55152746);
+            @Override
+            public HttpHeaders getHeaders() {
+                return null;
+            }
+        });
+
+        String url = save.getThumbnailUrl();
+
+        save.commitData();
+
+        assertEquals("Springdale",save.getCityName());
+        assertEquals(628,save.getPopulation());
+        assertEquals(55163856, save.getCash());
 
 
     }

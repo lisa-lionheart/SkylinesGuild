@@ -1,7 +1,6 @@
 package me.croxford.SkylinesGuild.controller;
 
 import me.croxford.SkylinesGuild.ClientConnection;
-import me.croxford.SkylinesGuild.SaveGameUploadParser;
 import me.croxford.SkylinesGuild.model.City;
 import me.croxford.SkylinesGuild.model.CityRepository;
 import me.croxford.SkylinesGuild.model.SaveGame;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -53,8 +51,8 @@ public class CityController extends BaseController {
 
     @RequestMapping(value="/city/{cityId}", method = RequestMethod.POST)
     public ResponseEntity publishSave(
-            @PathVariable("cityId") ObjectId id, @RequestBody byte[] data
-    )  {
+            @PathVariable("cityId") ObjectId id, @RequestBody SaveGame newSave
+    ) throws IOException {
 
         City city = cities.findById(id);
         if(city == null) {
@@ -66,26 +64,14 @@ public class CityController extends BaseController {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
         }
 
-        SaveGameUploadParser parser;
-        try {
-            parser = new SaveGameUploadParser(new ByteArrayInputStream(data));
-        } catch (IOException e) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-
-        SaveGame newSave = new SaveGame(new Date());
-
         newSave.setUser(savingUser);
-        newSave.setCash(parser.getCash());
-        newSave.setCashDelta(parser.getCashDelta());
-        newSave.setPopulation(parser.getPopulation());
-        newSave.setInGameDate(parser.getInGameTime());
-        newSave.storeThumbNailData(parser.getThumbnail());
-        newSave.storeSaveGameData(parser.getSavegame());
 
         city.addSaveGame(newSave);
 
         cities.save(city);
+
+        newSave.commitData();
+
         return new ResponseEntity(HttpStatus.ACCEPTED);
     };
 }

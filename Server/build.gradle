@@ -66,6 +66,7 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-devtools:1.3.0.M1")
 
+    compile 'org.itadaki:bzip2:0.9.1'
 }
 
 

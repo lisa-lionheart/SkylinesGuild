@@ -1,3 +1,5 @@
+package me.croxford.SkylinesGuild;
+
 import me.croxford.SkylinesGuild.WebSecurityConfig;
 import me.croxford.SkylinesGuild.model.User;
 import org.junit.Before;
